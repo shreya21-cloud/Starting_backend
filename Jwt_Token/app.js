@@ -1,5 +1,7 @@
 const express = require ('express');
 const app = express();
+const userModel =  require("./models/user");
+
 
 const cookieParser = require('cookie-parser');
 const path = require('path');
@@ -12,5 +14,16 @@ app.use(cookieParser());
 
 app.get('/',(req,res) =>{
     res.render('index');
+});
+
+app.post('/create', async(req,res) =>{
+    let{username, email,password,age} = req.body;
+  let createdUser =  await userModel.create({
+username,
+email,
+password,
+age
+   })
+   res.send(createdUser);
 });
 app.listen(3000);
