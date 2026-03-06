@@ -2,6 +2,7 @@ const express = require ('express');
 const app = express();
 const userModel =  require("./models/user");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 
 
 const cookieParser = require('cookie-parser');
@@ -27,9 +28,40 @@ app.post('/create', (req,res) =>{
           password:hash,
             age
          })
+
+       let token =  jwt.sign({email}, "shhhhhhhhhh");
+       res.cookie("token",token);
      res.send(createdUser);
         })
     })
 
 });
+
+app.get("/login",function(req,res){
+    res.render('login');
+})
+
+app.post("/login", async function(req,res){
+   let user = await userModel.findOne({email: req.body.email});
+   if(!user) return res.send("something went wrong")
+
+   bcrypt.compare(req.body.password, user.password, function(err,result){
+   if(result) {
+
+       let token =  jwt.sign({email:user.$cloneemail}, "shhhhhhhhhh");
+       res.cookie("token",token);
+    res.send("yes you can login");
+   }
+   else res.send("no you cant login");
+   })
+});
+
+
+
+app.get("\logout", function(req,res){
+res.cookie("token","");
+res.redirect("/");
+})
+
+
 app.listen(3000);
